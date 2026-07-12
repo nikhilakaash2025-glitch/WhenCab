@@ -5,8 +5,7 @@ import { db } from "@/lib/db";
 
 const ALLOWED_DOMAIN = "vitstudent.ac.in";
 
-// Exact-match domain check, not just a suffix check — avoids edge cases
-// like "attacker-vitstudent.ac.in@evil.com" slipping past endsWith().
+// Exact-match domain check, not just a suffix check
 function isValidStudentEmail(email: string): boolean {
   const parts = email.toLowerCase().split("@");
   return parts.length === 2 && parts[1] === ALLOWED_DOMAIN;
@@ -44,6 +43,15 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       });
       if (existingUser?.isSuspended) {
         return "/auth/error?reason=suspended";
+      }
+
+      // 4. Privacy Shield: Strip out the VIT Registration Number (e.g., 25BDE0097)
+      // We look at both user.name (from adapter) and profile.name (from Google OAuth)
+      const rawName = user.name ?? profile?.name;
+      if (rawName) {
+        // Regex matches 2 digits, 3 letters, 4 digits (case-insensitive)
+        const cleanedName = rawName.replace(/\b\d{2}[A-Z]{3}\d{4}\b/gi, "").trim();
+        user.name = cleanedName; // Updates what the Prisma Adapter writes to the DB
       }
 
       return true;
