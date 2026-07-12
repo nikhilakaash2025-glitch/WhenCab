@@ -81,10 +81,10 @@ export default function DashboardPage() {
   return (
     <div className="max-w-2xl mx-auto p-4 space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold">Find a Ride</h1>
+        <h1 className="font-display text-xl text-cream tracking-wide">Find a Ride</h1>
         <button
           onClick={() => router.push("/dashboard/post-ride")}
-          className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium"
+          className="bg-black border-2 border-flare text-flare-bright px-4 py-2 rounded-lg text-sm font-semibold hover:bg-flare hover:text-black transition"
         >
           + Post a Ride
         </button>
@@ -92,18 +92,18 @@ export default function DashboardPage() {
 
       <RideFilters onSearch={fetchRides} />
 
-      {loading && <p className="text-sm text-gray-500 text-center py-8">Loading rides...</p>}
-      {error && <p className="text-sm text-red-600 text-center py-8">{error}</p>}
+      {loading && <p className="text-sm text-smoke text-center py-8">Loading rides...</p>}
+      {error && <p className="text-sm text-ember-bright text-center py-8">{error}</p>}
 
       {!loading && !error && rides.length === 0 && (
-        <p className="text-sm text-gray-500 text-center py-8">
+        <p className="text-sm text-smoke text-center py-8">
           No rides match your search. Try widening the filters, or be the first to post.
         </p>
       )}
 
       {!loading && needCabRides.length > 0 && (
         <div>
-          <h2 className="text-sm font-medium text-gray-500 mb-2">
+          <h2 className="text-sm font-medium text-flare mb-2 uppercase tracking-wide">
             Looking for a cab ({needCabRides.length})
           </h2>
           <div className="space-y-3">
@@ -121,7 +121,7 @@ export default function DashboardPage() {
 
       {!loading && haveCabRides.length > 0 && (
         <div>
-          <h2 className="text-sm font-medium text-gray-500 mb-2">
+          <h2 className="text-sm font-medium text-flare mb-2 uppercase tracking-wide">
             Have a cab, need company ({haveCabRides.length})
           </h2>
           <div className="space-y-3">

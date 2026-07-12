@@ -1,4 +1,4 @@
-# VIT Carpool
+# WhenCab
 
 Coordinate cab-pooling to airports and stations before holidays — VIT students only.
 
@@ -94,6 +94,11 @@ src/app/dashboard/         Main app screens (search, post ride)
 src/app/admin/reports/     Moderation dashboard
 src/components/            ChatWidget, RideCard, RideFilters, etc.
 ```
+
+## Design notes
+
+- **Theme**: black/red/orange, defined in `tailwind.config.ts` (colors: `ink`, `ember`, `flare`, `amber`, `cream`, `smoke`) and `src/app/globals.css` (`.bg-wc-app` background, `.wc-roadline` divider). Change the hex values there to retheme everything at once.
+- **Names**: VIT's Google account display names include the registration number (e.g. "Krishil Modi 25BDE0094"). `src/lib/displayName.ts` strips any word containing a digit before showing a name to other students — used in `RideCard` and `ChatWidget`. The admin panel intentionally shows the raw, unfiltered name for moderation purposes.
 
 ## Known placeholders to swap before a real launch
 

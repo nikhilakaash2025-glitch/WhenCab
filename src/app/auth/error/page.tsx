@@ -13,12 +13,17 @@ function AuthErrorContent() {
       : "Sign-in failed. Please use your VIT student email (@vitstudent.ac.in).";
 
   return (
-    <div className="max-w-md mx-auto mt-20 text-center px-4">
-      <h1 className="text-lg font-semibold mb-2">Unable to Sign In</h1>
-      <p className="text-sm text-gray-600">{message}</p>
-      <a href="/" className="inline-block mt-6 text-sm text-blue-600 font-medium">
-        Back to sign in
-      </a>
+    <div className="min-h-screen flex items-center justify-center px-4">
+      <div className="max-w-md w-full text-center">
+        <h1 className="font-display text-2xl text-cream mb-3">Unable to Sign In</h1>
+        <p className="text-sm text-smoke">{message}</p>
+        <a
+          href="/"
+          className="inline-block mt-8 bg-black border border-flare/50 text-flare-bright px-4 py-2 rounded-lg text-sm font-medium hover:bg-flare hover:text-black transition"
+        >
+          Back to sign in
+        </a>
+      </div>
     </div>
   );
 }

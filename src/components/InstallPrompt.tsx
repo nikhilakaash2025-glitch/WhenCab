@@ -51,24 +51,24 @@ export default function InstallPrompt() {
   if (!showBanner) return null;
 
   return (
-    <div className="fixed bottom-4 left-4 right-4 sm:left-auto sm:right-4 sm:w-80 bg-white border rounded-xl shadow-lg p-4 z-50 safe-bottom">
-      <p className="text-sm font-medium mb-1">Install VIT Carpool</p>
+    <div className="fixed bottom-4 left-4 right-4 sm:left-auto sm:right-4 sm:w-80 bg-ink-surface border border-ink-border rounded-xl shadow-lg p-4 z-50 safe-bottom">
+      <p className="text-sm font-semibold mb-1 text-cream">Install WhenCab</p>
       {isIOS ? (
-        <p className="text-xs text-gray-600 mb-3">
+        <p className="text-xs text-smoke mb-3">
           Tap the Share icon, then &quot;Add to Home Screen&quot; for quick access.
         </p>
       ) : (
-        <p className="text-xs text-gray-600 mb-3">
+        <p className="text-xs text-smoke mb-3">
           Add to your home screen for faster access, just like a native app.
         </p>
       )}
       <div className="flex gap-2">
         {!isIOS && (
-          <button onClick={handleInstall} className="flex-1 bg-blue-600 text-white text-xs rounded-lg py-2 font-medium">
+          <button onClick={handleInstall} className="flex-1 bg-black border border-flare/50 text-flare-bright text-xs rounded-lg py-2 font-medium hover:bg-flare hover:text-black transition">
             Install
           </button>
         )}
-        <button onClick={handleDismiss} className="flex-1 text-xs text-gray-500 py-2">
+        <button onClick={handleDismiss} className="flex-1 text-xs text-smoke hover:text-cream py-2 transition">
           {isIOS ? "Got it" : "Not now"}
         </button>
       </div>

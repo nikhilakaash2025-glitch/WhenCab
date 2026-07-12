@@ -3,8 +3,8 @@
 @tailwind utilities;
 
 body {
-  color: #111827;
-  background: #f9fafb;
+  color: #FBEBDD;
+  background-color: #0B0908;
 }
 
 @supports (padding: max(0px)) {
@@ -14,4 +14,27 @@ body {
   .safe-top {
     padding-top: max(1rem, env(safe-area-inset-top));
   }
+}
+
+/* Signature background: a warm glow at the top fading into black, with a
+   faint diagonal "road line" texture running through it — evokes a highway
+   at night rather than a generic gradient blob. */
+.bg-wc-app {
+  background-color: #0B0908;
+  background-image:
+    radial-gradient(ellipse 90% 55% at 50% -10%, rgba(247,127,0,0.30) 0%, rgba(214,40,40,0.16) 38%, rgba(11,9,8,0) 72%),
+    repeating-linear-gradient(115deg, rgba(251,235,221,0.035) 0px, rgba(251,235,221,0.035) 2px, transparent 2px, transparent 90px);
+  min-height: 100vh;
+}
+
+/* Dashed centerline used as a small decorative divider / signature motif */
+.wc-roadline {
+  height: 2px;
+  background-image: repeating-linear-gradient(90deg, #F77F00 0px, #F77F00 14px, transparent 14px, transparent 26px);
+  opacity: 0.55;
+}
+
+.wc-focus:focus-visible {
+  outline: 2px solid #F77F00;
+  outline-offset: 2px;
 }

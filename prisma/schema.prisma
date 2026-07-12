@@ -35,9 +35,7 @@ enum ReportStatus {
 model User {
   id          String   @id @default(cuid())
   name        String
-  image       String?
   email       String   @unique
-  emailVerified DateTime?
   // Nullable because Google OAuth never provides a phone number — the
   // Prisma adapter creates this row automatically on first sign-in with
   // no chance to collect it upfront. The app prompts the user to fill
@@ -48,6 +46,7 @@ model User {
   isSuspended     Boolean   @default(false)
   suspendedAt     DateTime?
   suspendedReason String?
+
   rides          Ride[]
   conversationsA Conversation[] @relation("UserA")
   conversationsB Conversation[] @relation("UserB")
