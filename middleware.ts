@@ -13,8 +13,6 @@ export default auth(async (req) => {
     return NextResponse.redirect(new URL("/", req.nextUrl));
   }
 
-  // Belt-and-suspenders: a user suspended mid-session is locked out
-  // immediately, not just on their next fresh login.
   if (isProtectedRoute && isLoggedIn && req.auth?.user?.id) {
     const user = await db.user.findUnique({
       where: { id: req.auth.user.id },
