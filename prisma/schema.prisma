@@ -1,0 +1,197 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum PostType {
+  HAVE_CAB
+  NEED_CAB
+}
+
+enum RideStatus {
+  ACTIVE
+  EXPIRED
+}
+
+enum ReportReason {
+  SPAM
+  HARASSMENT
+  SCAM_OR_FRAUD
+  NO_SHOW
+  INAPPROPRIATE_BEHAVIOR
+  OTHER
+}
+
+enum ReportStatus {
+  PENDING
+  ACTIONED
+  DISMISSED
+}
+
+model User {
+  id          String   @id @default(cuid())
+  name        String
+  image       String?
+  email       String   @unique
+  emailVerified DateTime?
+  // Nullable because Google OAuth never provides a phone number — the
+  // Prisma adapter creates this row automatically on first sign-in with
+  // no chance to collect it upfront. The app prompts the user to fill
+  // this in once, right after their very first login.
+  phoneNumber String?
+  createdAt   DateTime @default(now())
+
+  isSuspended     Boolean   @default(false)
+  suspendedAt     DateTime?
+  suspendedReason String?
+  rides          Ride[]
+  conversationsA Conversation[] @relation("UserA")
+  conversationsB Conversation[] @relation("UserB")
+  messages       Message[]
+
+  reportsFiled   Report[] @relation("ReportedBy")
+  reportsAgainst Report[] @relation("ReportedUser")
+
+  blocking  Block[] @relation("Blocker")
+  blockedBy Block[] @relation("Blocked")
+
+  // NextAuth adapter models
+  accounts Account[]
+  sessions Session[]
+
+  @@index([email])
+}
+
+model Ride {
+  id             String     @id @default(cuid())
+  userId         String
+  user           User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  destination    String
+  travelDateTime DateTime
+  availableSeats Int
+  totalFare      Float
+  postType       PostType
+  status         RideStatus @default(ACTIVE)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  conversations Conversation[]
+
+  @@index([destination, travelDateTime, status])
+  @@index([userId])
+}
+
+model Conversation {
+  id     String @id @default(cuid())
+  rideId String
+  ride   Ride   @relation(fields: [rideId], references: [id], onDelete: Cascade)
+
+  userAId String
+  userA   User   @relation("UserA", fields: [userAId], references: [id], onDelete: Cascade)
+  userBId String
+  userB   User   @relation("UserB", fields: [userBId], references: [id], onDelete: Cascade)
+
+  messages      Message[]
+  createdAt     DateTime  @default(now())
+  lastMessageAt DateTime  @default(now())
+
+  @@unique([rideId, userAId, userBId])
+  @@index([userAId, lastMessageAt])
+  @@index([userBId, lastMessageAt])
+}
+
+model Message {
+  id             String       @id @default(cuid())
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  senderId String
+  sender   User   @relation(fields: [senderId], references: [id], onDelete: Cascade)
+
+  content   String
+  createdAt DateTime  @default(now())
+  readAt    DateTime?
+
+  @@index([conversationId, createdAt])
+}
+
+model Report {
+  id String @id @default(cuid())
+
+  reporterId String
+  reporter   User   @relation("ReportedBy", fields: [reporterId], references: [id], onDelete: Cascade)
+
+  reportedUserId String
+  reportedUser   User   @relation("ReportedUser", fields: [reportedUserId], references: [id], onDelete: Cascade)
+
+  reason  ReportReason
+  details String?
+  status  ReportStatus @default(PENDING)
+
+  reviewedAt   DateTime?
+  reviewedById String?
+
+  createdAt DateTime @default(now())
+
+  @@index([reportedUserId, status])
+  @@index([reporterId])
+  @@index([status, createdAt])
+}
+
+model Block {
+  id String @id @default(cuid())
+
+  blockerId String
+  blocker   User   @relation("Blocker", fields: [blockerId], references: [id], onDelete: Cascade)
+
+  blockedId String
+  blocked   User   @relation("Blocked", fields: [blockedId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@unique([blockerId, blockedId])
+  @@index([blockerId])
+  @@index([blockedId])
+}
+
+// --- NextAuth (Auth.js) required models for the Prisma adapter ---
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
