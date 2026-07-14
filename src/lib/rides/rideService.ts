@@ -75,6 +75,16 @@ export async function createRide(input: CreateRideInput) {
   return ride;
 }
 
+export async function getUserRides(userId: string) {
+  return db.ride.findMany({
+    where: { userId },
+    orderBy: { createdAt: "desc" },
+    include: {
+      user: { select: { id: true, name: true } },
+    },
+  });
+}
+
 export async function expireOverdueRides() {
   return db.ride.updateMany({
     where: { status: "ACTIVE", travelDateTime: { lt: new Date() } },
