@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import { redirect } from "next/navigation";
 import ChatWidget from "@/components/ChatWidget";
 import InstallPrompt from "@/components/InstallPrompt";
+import TopMenu from "@/components/TopMenu";
 import { ChatProvider } from "@/context/ChatContext";
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -25,9 +26,16 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
   return (
     <ChatProvider>
+      <div className="sticky top-0 z-40 bg-ink/95 backdrop-blur border-b border-ink-border">
+        <div className="max-w-2xl mx-auto px-4 h-14 flex items-center justify-between">
+          <span className="font-display text-sm tracking-wide text-flare-bright">
+            When<span className="text-cream">Cab</span>
+          </span>
+          <TopMenu />
+        </div>
+      </div>
       {children}
       <ChatWidget currentUserId={session.user.id} />
       <InstallPrompt />
     </ChatProvider>
   );
-}
