@@ -3,6 +3,6 @@
 // however many people are in this array.
 
 export const TEAM = [
-  { name: "Your Name", linkedin: "https://linkedin.com/in/your-handle" },
-  { name: "Partner Name", linkedin: "https://linkedin.com/in/partner-handle" },
+  { name: "Krishil Modi", linkedin: "https://www.linkedin.com/in/krishilmodi/" },
+  { name: "Nikhilakaash Chandrashekara", linkedin: "https://www.linkedin.com/in/nikhilakaashc/" },
 ];
