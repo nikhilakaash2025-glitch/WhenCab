@@ -1,130 +1,99 @@
 # WhenCab
 
-Coordinate cab-pooling to airports and stations before holidays — VIT students only.
+WhenCab helps VIT students coordinate shared cabs to airports and stations. It is available only to students signing in with a `@vitstudent.ac.in` Google account.
 
-## What's here
+## Features
 
-This is a complete Next.js (App Router) project: Google OAuth locked to
-`@vitstudent.ac.in`, ride posting/search with timezone-safe filtering, an
-in-app chat system (no phone numbers shown), a report → admin review →
-suspend/reinstate moderation flow, an auto-expiration cron, and PWA support
-so it installs to the home screen on Android and iOS.
+- Google sign-in restricted to exact `@vitstudent.ac.in` addresses
+- Username-only onboarding, with the account's Google profile photo used automatically
+- Ride creation, filtering, history, and automatic expiry
+- Private in-app conversations between ride participants
+- Unread-message badge and a 20-second new-message notification
+- Profile menu with username editing, theme switcher, history, and sign-out
+- High-contrast dark and light themes
+- In-app reporting, blocking, and administrator moderation tools
+- About Us menu with creator profiles and LinkedIn links
+- Installable Progressive Web App (PWA)
 
-**This code was generated in a sandbox with no internet access**, so
-nothing has been installed or run yet. Follow the steps below on your own
-machine to actually launch it.
+## Tech stack
 
-## 1. Install dependencies
+- Next.js 14 (App Router) and TypeScript
+- Auth.js / NextAuth with Google OAuth
+- Prisma and PostgreSQL
+- Tailwind CSS
+- Vercel deployment and cron jobs
+
+## Run locally
+
+### 1. Install dependencies
 
 ```bash
 npm install
 ```
 
-## 2. Set up a database
+### 2. Configure environment variables
 
-Get a free Postgres instance from [neon.tech](https://neon.tech) or
-[supabase.com](https://supabase.com) — either gives you a connection
-string in under a minute.
+Create `.env` with the following values:
 
-## 3. Set up Google OAuth
-
-Go to [Google Cloud Console](https://console.cloud.google.com/) →
-create a project → APIs & Services → Credentials → Create OAuth Client ID
-(Web application). Add this authorized redirect URI:
-
+```env
+DATABASE_URL="postgresql://..."
+GOOGLE_CLIENT_ID="..."
+GOOGLE_CLIENT_SECRET="..."
+AUTH_SECRET="..."
+ADMIN_EMAILS="your-name@vitstudent.ac.in"
+CRON_SECRET="..."
 ```
+
+`NEXTAUTH_SECRET` is also supported as an alternative to `AUTH_SECRET`.
+
+### 3. Configure Google OAuth
+
+Create a Google OAuth web client and add this redirect URI for local development:
+
+```text
 http://localhost:3000/api/auth/callback/google
 ```
 
-Copy the Client ID and Secret for the next step.
-
-## 4. Configure environment variables
+### 4. Apply database migrations and start the app
 
 ```bash
-cp .env.example .env
-```
-
-Fill in `.env` with:
-- `DATABASE_URL` — from step 2
-- `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` — from step 3
-- `NEXTAUTH_SECRET` — generate with `openssl rand -base64 32`
-- `ADMIN_EMAILS` — your own `@vitstudent.ac.in` email (comma-separated for multiple admins)
-- `CRON_SECRET` — generate with `openssl rand -base64 32`
-
-## 5. Push the schema and seed test data
-
-```bash
-npx prisma migrate dev --name init
-npx prisma db seed
-```
-
-This creates 5 fake students and 5 sample rides so the dashboard isn't
-empty on first load.
-
-## 6. Run it
-
-```bash
+npx prisma migrate deploy
 npm run dev
 ```
 
-Open **http://localhost:3000** and sign in with a Google account ending in
-`@vitstudent.ac.in`. Any other domain is rejected at sign-in.
+Open [http://localhost:3000](http://localhost:3000).
 
-The first time you log in, you'll be asked for a phone number (Google
-doesn't provide one) before you can reach the dashboard.
+## Deploy
 
-## Trying the admin panel
+Deploy to Vercel with:
 
-Set your own email in `ADMIN_EMAILS`, sign in, then visit
-**http://localhost:3000/admin/reports** directly — there's no nav link to
-it on purpose, since it's meant for admins only.
+```bash
+vercel --prod
+```
+
+Add the same environment variables to the Vercel project, then add the production callback URI to Google Cloud:
+
+```text
+https://your-domain.vercel.app/api/auth/callback/google
+```
+
+Apply migrations to the production database before or alongside deployment:
+
+```bash
+npx prisma migrate deploy
+```
 
 ## Project structure
 
-```
-prisma/schema.prisma       All database models
-prisma/seed.ts             Test data
-src/lib/auth.ts            NextAuth config + domain restriction
-src/lib/rides/             Ride search, create, expiration, matching
-src/lib/chat/              Conversations and messages
-src/lib/safety/            Report and block logic
-src/lib/admin/             Report review, suspend/unsuspend
-src/app/api/               All API routes
-src/app/dashboard/         Main app screens (search, post ride)
-src/app/admin/reports/     Moderation dashboard
-src/components/            ChatWidget, RideCard, RideFilters, etc.
+```text
+prisma/                 Database schema and migrations
+src/app/                Pages and API routes
+src/components/         Shared interface components
+src/lib/                Authentication, chat, ride, safety, and admin services
+src/context/            Client-side chat state
+public/                 PWA icons and manifest assets
 ```
 
-## Design notes
+## About
 
-- **Theme**: black/red/orange, defined in `tailwind.config.ts` (colors: `ink`, `ember`, `flare`, `amber`, `cream`, `smoke`) and `src/app/globals.css` (`.bg-wc-app` background, `.wc-roadline` divider). Change the hex values there to retheme everything at once.
-- **Names**: VIT's Google account display names include the registration number (e.g. "Krishil Modi 25BDE0094"). `src/lib/displayName.ts` strips any word containing a digit before showing a name to other students — used in `RideCard` and `ChatWidget`. The admin panel intentionally shows the raw, unfiltered name for moderation purposes.
-
-## Known placeholders to swap before a real launch
-
-- **App icons** (`public/icons/*.png`) are auto-generated placeholders —
-  replace with real branded icons (any online PWA icon generator works
-  from one source image).
-- **Google OAuth app** starts in "Testing" mode with a 100-user cap and an
-  "unverified app" warning. Add test users in the Cloud Console, or submit
-  for verification before a wider launch.
-- **WhatsApp integration**: `src/lib/rides/matchService.ts` has a
-  `notifyMatch()` function with the webhook call commented out and ready
-  to enable once you have WhatsApp Business API credentials.
-
-## Deploying
-
-```bash
-npm install -g vercel
-vercel
-```
-
-Set the same environment variables in the Vercel dashboard (Project →
-Settings → Environment Variables), update `NEXTAUTH_URL` to your deployed
-URL, and add the production callback URL to Google Cloud Console:
-
-```
-https://your-app.vercel.app/api/auth/callback/google
-```
-
-The cron job in `vercel.json` is picked up automatically on deploy.
+Created by [Nikhilakaash.C](https://www.linkedin.com/in/nikhilakaashc) and [Krishil Modi](https://www.linkedin.com/in/krishilmodi).
